@@ -1,0 +1,40 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+@import 'tailwindcss';
+
+@theme {
+  --color-branding: #9a1d2f;
+  --color-border: #57534e;
+  --breakpoint-sm: 1100px;
+}
+
+html {
+  line-height: 1;
+  -webkit-text-size-adjust: 100%;
+  -moz-tab-size: 4;
+  tab-size: 4;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: 'JetBrains Mono', monospace;
+  color: white;
+}
+
+html {
+  background-color: black;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
