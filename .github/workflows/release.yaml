@@ -1,4 +1,4 @@
-name: Build and Release
+name: Build & Release
 
 on:
   push:
@@ -18,9 +18,13 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
+          cache: pnpm
+
+      - name: Install pnpm
+        run: npm install -g pnpm
 
       - name: Install dependencies
-        run: npm install
+        run: pnpm install
 
       - name: Install Rust
         uses: actions-rs/toolchain@v1
@@ -28,7 +32,7 @@ jobs:
           toolchain: stable
 
       - name: Build Tauri macOS
-        run: npm run tauri build
+        run: pnpm tauri build
 
       - name: Upload macOS Artifact
         uses: actions/upload-artifact@v4
@@ -47,9 +51,13 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
+          cache: pnpm
+
+      - name: Install pnpm
+        run: npm install -g pnpm
 
       - name: Install dependencies
-        run: npm install
+        run: pnpm install
 
       - name: Install Rust
         uses: actions-rs/toolchain@v1
@@ -57,7 +65,7 @@ jobs:
           toolchain: stable
 
       - name: Build Tauri Windows
-        run: npm run tauri build
+        run: pnpm tauri build
 
       - name: Upload Windows Artifact
         uses: actions/upload-artifact@v4
@@ -69,6 +77,8 @@ jobs:
     name: Create Release
     needs: [build-macos, build-windows]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - uses: actions/checkout@v3
@@ -85,7 +95,7 @@ jobs:
           name: windows-app
           path: dist/windows
 
-      - name: Create GitHub Release
+      - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
