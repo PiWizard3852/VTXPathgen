@@ -344,7 +344,7 @@ export default component$(() => {
           class='border-border my-auto rounded-[4px] border border-solid'
         />
       </section>
-      <section class='sm:no-scrollbar mt-[20px] flex w-full flex-col gap-[12px] sm:mt-0 sm:w-[calc(100vw-min(100vw-400px,100vh-40px))] sm:overflow-scroll'>
+      <section class='relative z-[100] sm:no-scrollbar mt-[20px] flex w-full flex-col gap-[12px] sm:mt-0 sm:w-[calc(100vw-min(100vw-400px,100vh-40px))] sm:overflow-scroll'>
         <article class='border-border flex w-full justify-between rounded-[4px] border border-solid bg-black p-[16px] sm:sticky sm:top-0'>
           <Logo class='h-[40px] w-[40px]' />
           <div class='flex gap-[28px]'>
@@ -648,7 +648,7 @@ export default component$(() => {
                   </div>
                 ))}
               </section>
-              <div class='relative mt-[16px] rounded-[4px] bg-slate-600 p-[12px] text-[14px] leading-[1.15] text-slate-300 select-none'>
+              <div class='z-[-10] relative mt-[16px] rounded-[4px] bg-slate-600 p-[12px] text-[14px] leading-[1.15] text-slate-300 select-none'>
                 <button
                   class={`absolute top-0 right-0 m-[8px] flex cursor-pointer gap-[8px] overflow-hidden transition-all duration-200 hover:text-slate-200 ${copySuccessful.value ? 'w-[80px] bg-slate-600' : 'w-[20px]'}`}
                   onClick$={() => {
