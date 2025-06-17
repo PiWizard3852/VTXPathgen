@@ -8,7 +8,7 @@ enum Tokens {
   CLOSE_PAREN,
   COMMA,
   NUMERIC_LITERAL,
-  UNKNOWN_IDENTIFIER
+  UNKNOWN_IDENTIFIER,
 }
 
 function isAlpha(char: string): boolean {
@@ -62,7 +62,10 @@ function parsePoint(tokens: Tokens[], numericLiterals: number[]) {
   };
 }
 
-function parseCurve(tokens: Tokens[], numericLiterals: number[]): [Curve, Tokens[], number[]] | null {
+function parseCurve(
+  tokens: Tokens[],
+  numericLiterals: number[],
+): [Curve, Tokens[], number[]] | null {
   const curve = {
     color:
       '#' +
@@ -93,7 +96,11 @@ function parseCurve(tokens: Tokens[], numericLiterals: number[]): [Curve, Tokens
       return null;
     }
 
-    if (i === 3 && token !== Tokens.NUMERIC_LITERAL && token !== Tokens.UNKNOWN_IDENTIFIER) {
+    if (
+      i === 3 &&
+      token !== Tokens.NUMERIC_LITERAL &&
+      token !== Tokens.UNKNOWN_IDENTIFIER
+    ) {
       return null;
     }
 
@@ -105,7 +112,11 @@ function parseCurve(tokens: Tokens[], numericLiterals: number[]): [Curve, Tokens
       return null;
     }
 
-    if (i === 5 && token !== Tokens.NUMERIC_LITERAL && token !== Tokens.UNKNOWN_IDENTIFIER) {
+    if (
+      i === 5 &&
+      token !== Tokens.NUMERIC_LITERAL &&
+      token !== Tokens.UNKNOWN_IDENTIFIER
+    ) {
       return null;
     }
 
@@ -229,7 +240,7 @@ export function parseCode(code: string): Curve[] | null {
     return null;
   }
 
-  const curves: Curve[] = []
+  const curves: Curve[] = [];
 
   let finished = false;
 

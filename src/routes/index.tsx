@@ -1,12 +1,21 @@
-import {component$, useSignal, useStore, useVisibleTask$,} from '@builder.io/qwik';
-import type {DocumentHead} from '@builder.io/qwik-city';
+import {
+  component$,
+  useSignal,
+  useStore,
+  useVisibleTask$,
+} from '@builder.io/qwik';
+import type { DocumentHead } from '@builder.io/qwik-city';
 
-import {BaseDirectory, exists, writeFile, writeTextFile} from '@tauri-apps/plugin-fs';
-
+import { getName } from '@tauri-apps/api/app';
+import {
+  BaseDirectory,
+  exists,
+  writeFile,
+  writeTextFile,
+} from '@tauri-apps/plugin-fs';
 import Logo from '~/logo.svg?jsx';
 
-import {parseCode} from '~/components/parse';
-import { getName } from '@tauri-apps/api/app';
+import { parseCode } from '~/components/parse';
 
 export interface Curve {
   color: string;
@@ -167,7 +176,7 @@ export default component$(() => {
   const curves = useStore<Curve[]>([]);
 
   const importing = useSignal(false);
-  const importCode = useSignal("");
+  const importCode = useSignal('');
 
   const desktop = useSignal(false);
 
@@ -423,27 +432,33 @@ export default component$(() => {
 
                 if (desktop.value) {
                   const pngBase64 = pngDataUrl.split(',')[1];
-                  const pngBytes = Uint8Array.from(atob(pngBase64), c => c.charCodeAt(0));
+                  const pngBytes = Uint8Array.from(atob(pngBase64), (c) =>
+                    c.charCodeAt(0),
+                  );
 
-                  let pngPathname = 'vtx-pathgen.png'
+                  let pngPathname = 'vtx-pathgen.png';
                   let pngPathnameIndex = 1;
 
-                  while (await exists(pngPathname, {
-                    baseDir: BaseDirectory.Download
-                  })) {
+                  while (
+                    await exists(pngPathname, {
+                      baseDir: BaseDirectory.Download,
+                    })
+                  ) {
                     pngPathname = `vtx-pathgen(${pngPathnameIndex++}).png`;
                   }
 
                   await writeFile(pngPathname, pngBytes, {
-                    baseDir: BaseDirectory.Download
+                    baseDir: BaseDirectory.Download,
                   });
 
                   let txtPathname = 'vtx-pathgen.txt';
                   let txtPathnameIndex = 1;
 
-                  while (await exists(txtPathname, {
-                    baseDir: BaseDirectory.Download,
-                  })) {
+                  while (
+                    await exists(txtPathname, {
+                      baseDir: BaseDirectory.Download,
+                    })
+                  ) {
                     txtPathname = `vtx-pathgen(${txtPathnameIndex++}).txt`;
                   }
 
@@ -451,22 +466,22 @@ export default component$(() => {
                     baseDir: BaseDirectory.Download,
                   });
                 } else {
-                    const pngA = document.createElement('a');
+                  const pngA = document.createElement('a');
 
-                    pngA.href = pngDataUrl;
-                    pngA.download = 'vtx-pathgen.png';
+                  pngA.href = pngDataUrl;
+                  pngA.download = 'vtx-pathgen.png';
 
-                    pngA.click();
+                  pngA.click();
 
-                    const blob = new Blob([txt], { type: 'text/plain' });
-                    const url = URL.createObjectURL(blob);
+                  const blob = new Blob([txt], { type: 'text/plain' });
+                  const url = URL.createObjectURL(blob);
 
-                    const txtA = document.createElement('a');
+                  const txtA = document.createElement('a');
 
-                    txtA.href = url;
-                    txtA.download = 'vtx-pathgen.txt';
+                  txtA.href = url;
+                  txtA.download = 'vtx-pathgen.txt';
 
-                    txtA.click();
+                  txtA.click();
                 }
               }}
               class='hover:text-branding cursor-pointer duration-200'
@@ -489,129 +504,21 @@ export default component$(() => {
           </div>
         </article>
         {curves.map((curve, ci) => {
+          // eslint-disable-next-line qwik/use-method-usage
           const copySuccessful = useSignal(false);
 
           return (
-          <article
-            key={ci}
-            class='border-border w-full rounded-[4px] border border-solid p-[16px]'
-          >
-            <header class='flex items-center justify-between text-[18px]'>
-              <h2>#{ci + 1}</h2>
-              <div class='flex items-center gap-[12px]'>
-                <button
-                  class='cursor-pointer text-green-600 duration-200 hover:text-green-500'
-                  onClick$={() => {
-                    addPoint(curve);
-                  }}
-                >
-                  <svg
-                    xmlns='http://www.w3.org/2000/svg'
-                    fill='none'
-                    viewBox='0 0 24 24'
-                    stroke-width='1.5'
-                    stroke='currentColor'
-                    class='size-6'
-                  >
-                    <path
-                      stroke-linecap='round'
-                      stroke-linejoin='round'
-                      d='M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z'
-                    />
-                  </svg>
-                </button>
-                <button
-                  class='cursor-pointer text-red-800 duration-200 hover:text-red-700'
-                  onClick$={() => {
-                    curves.splice(ci, 1);
-                  }}
-                >
-                  <svg
-                    xmlns='http://www.w3.org/2000/svg'
-                    fill='none'
-                    viewBox='0 0 24 24'
-                    stroke-width='1.5'
-                    stroke='currentColor'
-                    class='size-6'
-                  >
-                    <path
-                      stroke-linecap='round'
-                      stroke-linejoin='round'
-                      d='M15 12H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z'
-                    />
-                  </svg>
-                </button>
-              </div>
-            </header>
-            <div
-              class='my-[8px] h-[2px]'
-              style={{ backgroundColor: curve.color }}
-            />
-            <section class='flex flex-col gap-[24px] pl-[24px]'>
-              {curve.points.map((point, pi) => (
-                <div
-                  key={pi}
-                  class='flex items-center justify-between'
-                >
-                  <div class='flex items-center gap-[16px]'>
-                    X:{' '}
-                    <input
-                      class='outline-none border border-solid border-border rounded-[4px] w-[100px] p-[4px] text-[14px]'
-                      type='number'
-                      value={point.x}
-                      onInput$={(e) => {
-                        point.x =
-                          Math.floor(
-                            parseFloat((e.target as HTMLInputElement).value) *
-                              100,
-                          ) / 100;
-
-                        if (
-                          pi === curve.points.length - 1 &&
-                          ci < curves.length - 1
-                        ) {
-                          curves[ci + 1].points[0].x = point.x;
-                        }
-
-                        if (pi === 0 && ci > 0) {
-                          curves[ci - 1].points[
-                            curves[ci - 1].points.length - 1
-                          ].x = point.x;
-                        }
-                      }}
-                    />
-                    Y:{' '}
-                    <input
-                      class='outline-none border border-solid border-border rounded-[4px] w-[100px] p-[4px] text-[14px]'
-                      type='number'
-                      value={point.y}
-                      onInput$={(e) => {
-                        point.y =
-                          Math.floor(
-                            parseFloat((e.target as HTMLInputElement).value) *
-                              100,
-                          ) / 100;
-
-                        if (
-                          pi === curve.points.length - 1 &&
-                          ci < curves.length - 1
-                        ) {
-                          curves[ci + 1].points[0].y = point.y;
-                        }
-
-                        if (pi === 0 && ci > 0) {
-                          curves[ci - 1].points[
-                            curves[ci - 1].points.length - 1
-                          ].y = point.y;
-                        }
-                      }}
-                    />
-                  </div>
+            <article
+              key={ci}
+              class='border-border w-full rounded-[4px] border border-solid p-[16px]'
+            >
+              <header class='flex items-center justify-between text-[18px]'>
+                <h2>#{ci + 1}</h2>
+                <div class='flex items-center gap-[12px]'>
                   <button
-                    disabled={curve.points.length === 2}
-                    class='mr-[16px] cursor-pointer text-red-800 duration-200 hover:text-red-700 disabled:cursor-not-allowed'
+                    class='cursor-pointer text-green-600 duration-200 hover:text-green-500'
                     onClick$={() => {
-                      removePoint(curve, pi);
+                      addPoint(curve);
                     }}
                   >
                     <svg
@@ -620,80 +527,231 @@ export default component$(() => {
                       viewBox='0 0 24 24'
                       stroke-width='1.5'
                       stroke='currentColor'
-                      class='size-5'
+                      class='size-6'
                     >
                       <path
                         stroke-linecap='round'
                         stroke-linejoin='round'
-                        d='M5 12h14'
+                        d='M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z'
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    class='cursor-pointer text-red-800 duration-200 hover:text-red-700'
+                    onClick$={() => {
+                      curves.splice(ci, 1);
+                    }}
+                  >
+                    <svg
+                      xmlns='http://www.w3.org/2000/svg'
+                      fill='none'
+                      viewBox='0 0 24 24'
+                      stroke-width='1.5'
+                      stroke='currentColor'
+                      class='size-6'
+                    >
+                      <path
+                        stroke-linecap='round'
+                        stroke-linejoin='round'
+                        d='M15 12H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z'
                       />
                     </svg>
                   </button>
                 </div>
-              ))}
-            </section>
-            <div
-                class='relative text-slate-300 select-none mt-[16px] rounded-[4px] bg-slate-600 p-[12px] text-[14px] leading-[1.15]'
-            >
-              <button class={`transition-all overflow-hidden flex gap-[8px] cursor-pointer duration-200 hover:text-slate-200 absolute top-0 right-0 m-[8px] ${copySuccessful.value ? "w-[80px] bg-slate-600" : "w-[20px]"}`} onClick$={() => {
-                navigator.clipboard.writeText(codeGen(curve).replaceAll("<br/>", "\n").replaceAll("&nbsp;", "\t")).then(() => {
-                    copySuccessful.value = true;
-
-                    setTimeout(() => {
-                        copySuccessful.value = false;
-                    }, 1000);
-                });
-              }}>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                     stroke="currentColor" class="size-5">
-                  <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M8.25 7.5V6.108c0-1.135.845-2.098 1.976-2.192.373-.03.748-.057 1.123-.08M15.75 18H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08M15.75 18.75v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5A3.375 3.375 0 0 0 6.375 7.5H5.25m11.9-3.664A2.251 2.251 0 0 0 15 2.25h-1.5a2.251 2.251 0 0 0-2.15 1.586m5.8 0c.065.21.1.433.1.664v.75h-6V4.5c0-.231.035-.454.1-.664M6.75 7.5H4.875c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V16.5a9 9 0 0 0-9-9Z"/>
-                </svg>
-                {copySuccessful.value && <span class={`transition-all duration-300 ${copySuccessful.value ? 'opacity-100' : 'opacity-0'}`}>Copied!</span>}
-              </button>
+              </header>
               <div
-                  dangerouslySetInnerHTML={codeGen(curve)}
+                class='my-[8px] h-[2px]'
+                style={{ backgroundColor: curve.color }}
               />
-            </div>
-          </article>
-        )})}
-        {importing.value && <article class='border-border w-full rounded-[4px] border border-solid p-[16px]'>
-          <header class='flex justify-between items-center'>
-            <button
+              <section class='flex flex-col gap-[24px] pl-[24px]'>
+                {curve.points.map((point, pi) => (
+                  <div
+                    key={pi}
+                    class='flex items-center justify-between'
+                  >
+                    <div class='flex items-center gap-[16px]'>
+                      X:{' '}
+                      <input
+                        class='border-border w-[100px] rounded-[4px] border border-solid p-[4px] text-[14px] outline-none'
+                        type='number'
+                        value={point.x}
+                        onInput$={(e) => {
+                          point.x =
+                            Math.floor(
+                              parseFloat((e.target as HTMLInputElement).value) *
+                                100,
+                            ) / 100;
+
+                          if (
+                            pi === curve.points.length - 1 &&
+                            ci < curves.length - 1
+                          ) {
+                            curves[ci + 1].points[0].x = point.x;
+                          }
+
+                          if (pi === 0 && ci > 0) {
+                            curves[ci - 1].points[
+                              curves[ci - 1].points.length - 1
+                            ].x = point.x;
+                          }
+                        }}
+                      />
+                      Y:{' '}
+                      <input
+                        class='border-border w-[100px] rounded-[4px] border border-solid p-[4px] text-[14px] outline-none'
+                        type='number'
+                        value={point.y}
+                        onInput$={(e) => {
+                          point.y =
+                            Math.floor(
+                              parseFloat((e.target as HTMLInputElement).value) *
+                                100,
+                            ) / 100;
+
+                          if (
+                            pi === curve.points.length - 1 &&
+                            ci < curves.length - 1
+                          ) {
+                            curves[ci + 1].points[0].y = point.y;
+                          }
+
+                          if (pi === 0 && ci > 0) {
+                            curves[ci - 1].points[
+                              curves[ci - 1].points.length - 1
+                            ].y = point.y;
+                          }
+                        }}
+                      />
+                    </div>
+                    <button
+                      disabled={curve.points.length === 2}
+                      class='mr-[16px] cursor-pointer text-red-800 duration-200 hover:text-red-700 disabled:cursor-not-allowed'
+                      onClick$={() => {
+                        removePoint(curve, pi);
+                      }}
+                    >
+                      <svg
+                        xmlns='http://www.w3.org/2000/svg'
+                        fill='none'
+                        viewBox='0 0 24 24'
+                        stroke-width='1.5'
+                        stroke='currentColor'
+                        class='size-5'
+                      >
+                        <path
+                          stroke-linecap='round'
+                          stroke-linejoin='round'
+                          d='M5 12h14'
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+              </section>
+              <div class='relative mt-[16px] rounded-[4px] bg-slate-600 p-[12px] text-[14px] leading-[1.15] text-slate-300 select-none'>
+                <button
+                  class={`absolute top-0 right-0 m-[8px] flex cursor-pointer gap-[8px] overflow-hidden transition-all duration-200 hover:text-slate-200 ${copySuccessful.value ? 'w-[80px] bg-slate-600' : 'w-[20px]'}`}
+                  onClick$={() => {
+                    navigator.clipboard
+                      .writeText(
+                        codeGen(curve)
+                          .replaceAll('<br/>', '\n')
+                          .replaceAll('&nbsp;', '\t'),
+                      )
+                      .then(() => {
+                        copySuccessful.value = true;
+
+                        setTimeout(() => {
+                          copySuccessful.value = false;
+                        }, 1000);
+                      });
+                  }}
+                >
+                  <svg
+                    xmlns='http://www.w3.org/2000/svg'
+                    fill='none'
+                    viewBox='0 0 24 24'
+                    stroke-width='1.5'
+                    stroke='currentColor'
+                    class='size-5'
+                  >
+                    <path
+                      stroke-linecap='round'
+                      stroke-linejoin='round'
+                      d='M8.25 7.5V6.108c0-1.135.845-2.098 1.976-2.192.373-.03.748-.057 1.123-.08M15.75 18H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08M15.75 18.75v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5A3.375 3.375 0 0 0 6.375 7.5H5.25m11.9-3.664A2.251 2.251 0 0 0 15 2.25h-1.5a2.251 2.251 0 0 0-2.15 1.586m5.8 0c.065.21.1.433.1.664v.75h-6V4.5c0-.231.035-.454.1-.664M6.75 7.5H4.875c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V16.5a9 9 0 0 0-9-9Z'
+                    />
+                  </svg>
+                  <span
+                    class={`transition-all duration-300 ${copySuccessful.value ? 'inline opacity-100' : 'hidden opacity-0'}`}
+                  >
+                    Copied!
+                  </span>
+                </button>
+                <div dangerouslySetInnerHTML={codeGen(curve)} />
+              </div>
+            </article>
+          );
+        })}
+        {importing.value && (
+          <article class='border-border w-full rounded-[4px] border border-solid p-[16px]'>
+            <header class='flex items-center justify-between'>
+              <button
                 class='cursor-pointer text-red-800 duration-200 hover:text-red-700'
                 onClick$={() => {
                   importing.value = false;
                 }}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                   stroke="currentColor" class="size-6">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                      d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-              </svg>
-            </button>
-            <button
-                disabled={importCode.value.trim() === ""}
-                class='cursor-pointer disabled:cursor-not-allowed text-slate-300 duration-200 hover:text-slate-200'
+              >
+                <svg
+                  xmlns='http://www.w3.org/2000/svg'
+                  fill='none'
+                  viewBox='0 0 24 24'
+                  stroke-width='1.5'
+                  stroke='currentColor'
+                  class='size-6'
+                >
+                  <path
+                    stroke-linecap='round'
+                    stroke-linejoin='round'
+                    d='m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z'
+                  />
+                </svg>
+              </button>
+              <button
+                disabled={importCode.value.trim() === ''}
+                class='cursor-pointer text-slate-300 duration-200 hover:text-slate-200 disabled:cursor-not-allowed'
                 onClick$={() => {
                   parseCode(importCode.value.trim())?.forEach((curve) => {
                     curves.push(curve);
-                  })
+                  });
 
                   importing.value = false;
-                  importCode.value = "";
+                  importCode.value = '';
                 }}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                   stroke="currentColor" class="size-6">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                      d="m12.75 15 3-3m0 0-3-3m3 3h-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-              </svg>
-            </button>
-          </header>
-          <textarea onInput$={(e) => {
-            importCode.value = (e.target as HTMLInputElement).value;
-          }} class='resize-none w-full h-[150px] outline-none border border-solid border-border rounded-[4px] mt-[12px] p-[8px]' />
-        </article>}
+              >
+                <svg
+                  xmlns='http://www.w3.org/2000/svg'
+                  fill='none'
+                  viewBox='0 0 24 24'
+                  stroke-width='1.5'
+                  stroke='currentColor'
+                  class='size-6'
+                >
+                  <path
+                    stroke-linecap='round'
+                    stroke-linejoin='round'
+                    d='m12.75 15 3-3m0 0-3-3m3 3h-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z'
+                  />
+                </svg>
+              </button>
+            </header>
+            <textarea
+              onInput$={(e) => {
+                importCode.value = (e.target as HTMLInputElement).value;
+              }}
+              class='border-border mt-[12px] h-[150px] w-full resize-none rounded-[4px] border border-solid p-[8px] outline-none'
+            />
+          </article>
+        )}
       </section>
     </main>
   );
@@ -705,7 +763,7 @@ export const head: DocumentHead = {
     {
       name: 'description',
       content:
-          'Catmull Rom spline visualization and codegen for FTC team 15534 VERTEX',
+        'Catmull Rom spline visualization and codegen for FTC team 15534 VERTEX',
     },
   ],
 };
