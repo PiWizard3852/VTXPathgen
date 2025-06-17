@@ -67,9 +67,6 @@ jobs:
       - name: Build Tauri Windows
         run: pnpm tauri build
 
-      - name: List built files
-        run: ls -R src-tauri/target/release/bundle
-
       - name: Upload Windows Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -105,6 +102,6 @@ jobs:
         with:
           files: |
             dist/macos/*.dmg
-            dist/windows/*.exe
+            nsis/*.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
