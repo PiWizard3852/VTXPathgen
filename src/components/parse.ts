@@ -231,7 +231,7 @@ export function parseCode(code: string): Curve[] | null {
         i++;
       }
 
-      numericLiterals.push(parseInt(token, 10));
+      numericLiterals.push(parseFloat(token));
       tokens.push(Tokens.NUMERIC_LITERAL);
 
       continue;
